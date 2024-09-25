@@ -24,14 +24,16 @@ class HtmlService {
   }
 
   getMapHtml(size) {
-    const countCells = size * size;
     const mapContainer = document.createElement("div");
     mapContainer.classList.add("map");
 
-    for(var i = 0; i < countCells; i++){
-        const cell = document.createElement("div");
-        cell.classList.add("cell");
-        mapContainer.append(cell);
+    for(var x = 0; x < size; x++){
+        for (let y = 0; y < size; y++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.setAttribute("id", `${x}_${y}`);
+            mapContainer.append(cell);
+        }
     }
 
     mapContainer.style.width = `${this.widthCell * size}px`;

@@ -6,7 +6,8 @@ class Live {
     this.subscribers = [];
     this.gameRoot = document.getElementById("game-root");
     this.htmlService = new HtmlService();
-    this.mapSize = [100, 100];
+    this.mapSize = 100;
+    this.stateCell = [];
   }
 
   init() {
@@ -17,26 +18,91 @@ class Live {
   setListeners() {
     const startButton = document.querySelector('[data-action="start"]');
     startButton.addEventListener("click", (e) => {
-        const target = e.target;
-        if (target === startButton) {
-            const fieldSize = document.querySelector('[data-type="field-size"]').value
-            this.setMapSize(fieldSize)
-            this.generateMap(fieldSize);
-        }
+      const target = e.target;
+      if (target === startButton) {
+        const fieldSize = document.querySelector(
+          '[data-type="field-size"]'
+        ).value;
+        this.setMapSize(fieldSize);
+        this.generateMap(fieldSize);
+      }
     });
   }
 
   setMapSize(size) {
-    this.mapSize = [size, size];
+    this.mapSize = size;
   }
 
   generateMap(size) {
-    const htmlMap = this.htmlService.getMapHtml(size);
-    const mapElement = document.getElementById('map')
+    this.generateAliveCells(size);
 
-    if (mapElement) this.gameRoot.removeChild(mapElement)
-    console.log(htmlMap)
-    this.gameRoot.appendChild(htmlMap)
+    const htmlMap = this.htmlService.getMapHtml(size);
+    const mapElement = document.getElementById("map");
+
+    if (mapElement) this.gameRoot.removeChild(mapElement);
+    this.gameRoot.appendChild(htmlMap);
+    this.gameLoop();
+  }
+
+  generateAliveCells(size) {
+    for (let x = 0; x < size; x++) {
+      for (let y = 0; y < size; y++) {
+        if (Math.random() > 0.8) {
+          const arrayKey = `${x}_${y}`;;
+          this.stateCell.push([arrayKey])
+        }
+      }
+    }
+  }
+
+  renderAliveCells() {
+    this.stateCell.forEach((aliveCell) => {
+        console.log(aliveCell)
+        const cell = document.getElementById(aliveCell)
+        cell.classList.add("alive");
+    })
+  }
+
+  gameLoop() {
+    this.checkSurrounding();
+    this.renderAliveCells()
+
+    setTimeout(() => {
+      this.gameLoop();
+    }, 1000);
+  }
+
+  checkSurrounding() {
+    const neighboringAliveСells = this.countNeighboringAlive()
+  }
+
+  countNeighboringAlive() {
+    let count = 0;
+    // if (row-1 >= 0) {
+    //     if (grid[row-1][col] == 1) count++;
+    // }
+    // if (row-1 >= 0 && col-1 >= 0) {
+    //     if (grid[row-1][col-1] == 1) count++;
+    // }
+    // if (row-1 >= 0 && col+1 < cols) {
+    //     if (grid[row-1][col+1] == 1) count++;
+    // }
+    // if (col-1 >= 0) {
+    //     if (grid[row][col-1] == 1) count++;
+    // }
+    // if (col+1 < cols) {
+    //     if (grid[row][col+1] == 1) count++;
+    // }
+    // if (row+1 < rows) {
+    //     if (grid[row+1][col] == 1) count++;
+    // }
+    // if (row+1 < rows && col-1 >= 0) {
+    //     if (grid[row+1][col-1] == 1) count++;
+    // }
+    // if (row+1 < rows && col+1 < cols) {
+    //     if (grid[row+1][col+1] == 1) count++;
+    // }
+    // return count;
   }
 
   buildInterface() {
@@ -48,6 +114,8 @@ class Live {
   insertChild(element, html) {
     element.insertAdjacentHTML("beforeend", html);
   }
+
+  startGame() {}
 }
 
 const liveGame = new Live();
