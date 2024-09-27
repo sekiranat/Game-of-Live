@@ -17,29 +17,17 @@ class HtmlService {
         </div>
     </div>
     `;
+
+    this.canvas = `
+    <canvas id="game-board" class="liveGame__board"/>
+    `;
+    this.renderTime = `
+    <div class='liveGame__render-time' id="render-time"></div>
+    `;
   }
 
   getHtmlByKeyName(name) {
     return this[name];
-  }
-
-  getMapHtml(size) {
-    const mapContainer = document.createElement("div");
-    mapContainer.classList.add("map");
-
-    for(var x = 0; x < size; x++){
-        for (let y = 0; y < size; y++) {
-            const cell = document.createElement("div");
-            cell.classList.add("cell");
-            cell.setAttribute("id", `${x}_${y}`);
-            mapContainer.append(cell);
-        }
-    }
-
-    mapContainer.style.width = `${this.widthCell * size}px`;
-    mapContainer.style.height = `${this.widthCell * size}px`;
-
-    return mapContainer;
   }
 }
 

@@ -37,3 +37,16 @@ body {
     height: 10px;
     border: 1px solid #fff;
 }
+
+.liveGame__board {
+    display: block;
+    margin: 50px auto;
+    border: 3px solid #fff;
+}
+
+.liveGame__time-render {
+    position: absolute;
+    top: 70px;
+    right: 70px;
+    font-size: 20px;
+}

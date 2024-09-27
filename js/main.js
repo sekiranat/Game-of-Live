@@ -1,17 +1,22 @@
 import HtmlService from "./htmlService.js";
+import GameWorld from "./gameWorld.js";
 
-class Live {
+class GameLive {
   constructor(name) {
     this.name = name;
     this.subscribers = [];
     this.gameRoot = document.getElementById("game-root");
     this.htmlService = new HtmlService();
+    this.liveBoard = new GameWorld();
     this.mapSize = 100;
     this.stateCell = [];
+    this.gameBoardId = 'game-board'
+    this.init();
   }
 
   init() {
     this.buildInterface();
+    this.buildBoard();
     this.setListeners();
   }
 
@@ -23,57 +28,13 @@ class Live {
         const fieldSize = document.querySelector(
           '[data-type="field-size"]'
         ).value;
-        this.setMapSize(fieldSize);
-        this.generateMap(fieldSize);
+        this.liveBoard.init(this.gameBoardId, fieldSize);
       }
     });
   }
 
-  setMapSize(size) {
-    this.mapSize = size;
-  }
-
-  generateMap(size) {
-    this.generateAliveCells(size);
-
-    const htmlMap = this.htmlService.getMapHtml(size);
-    const mapElement = document.getElementById("map");
-
-    if (mapElement) this.gameRoot.removeChild(mapElement);
-    this.gameRoot.appendChild(htmlMap);
-    this.gameLoop();
-  }
-
-  generateAliveCells(size) {
-    for (let x = 0; x < size; x++) {
-      for (let y = 0; y < size; y++) {
-        if (Math.random() > 0.8) {
-          const arrayKey = `${x}_${y}`;;
-          this.stateCell.push([arrayKey])
-        }
-      }
-    }
-  }
-
-  renderAliveCells() {
-    this.stateCell.forEach((aliveCell) => {
-        console.log(aliveCell)
-        const cell = document.getElementById(aliveCell)
-        cell.classList.add("alive");
-    })
-  }
-
-  gameLoop() {
-    this.checkSurrounding();
-    this.renderAliveCells()
-
-    setTimeout(() => {
-      this.gameLoop();
-    }, 1000);
-  }
-
-  checkSurrounding() {
-    const neighboringAliveСells = this.countNeighboringAlive()
+  setMapSize(fieldSize) {
+    this.mapSize = parseInt(fieldSize);
   }
 
   countNeighboringAlive() {
@@ -107,7 +68,14 @@ class Live {
 
   buildInterface() {
     const interfaceHtml = this.htmlService.getHtmlByKeyName("userInterface");
+    const renderTimeHtml = this.htmlService.getHtmlByKeyName("renderTime");
     this.insertChild(this.gameRoot, interfaceHtml);
+    this.insertChild(this.gameRoot, renderTimeHtml);
+  }
+
+  buildBoard() {
+    const canvas = this.htmlService.getHtmlByKeyName("canvas");
+    this.insertChild(this.gameRoot, canvas);
   }
 
   // Вставляет html string в element после последнего потомка
@@ -118,5 +86,6 @@ class Live {
   startGame() {}
 }
 
-const liveGame = new Live();
-liveGame.init();
+window.onload = () => {
+  new GameLive();
+};
