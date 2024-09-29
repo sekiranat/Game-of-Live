@@ -1,4 +1,4 @@
-class GameWorld {
+class LiveBoard{
   constructor() {
     this.canvas;
     this.prevGenerationTime;
@@ -172,4 +172,4 @@ class GameWorld {
   }
 }
 
-export default GameWorld;
+export default LiveBoard;

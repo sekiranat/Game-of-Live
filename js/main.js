@@ -1,11 +1,11 @@
 import HtmlService from "./htmlService.js";
-import GameWorld from "./gameWorld.js";
+import LiveBoard from "./liveBoard.js";
 
 class GameLive {
   constructor() {
     this.gameRoot = document.getElementById("game-root");
     this.htmlService = new HtmlService();
-    this.liveBoard = new GameWorld();
+    this.liveBoard = new LiveBoard();
     this.defaultCellsQuantity = 20
     this.gameBoardId = 'game-board'
 
