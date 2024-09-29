@@ -2,7 +2,7 @@ class GameWorld {
   constructor() {
     this.canvas;
     this.prevGenerationTime;
-    this.boardSideSize;
+    this.cellsQuantity;
     this.timeGeneration;
     this.shouldTimeout;
     this.cellSize;
@@ -10,21 +10,28 @@ class GameWorld {
     this.nextGenerationAlive = new Map();
     this.timeout;
     this.isPlaying = false;
+
+    this.canvasSize = 600;
+    this.maxSideSizeWithTimeout = 700;
+    this.aliveColor = "#00FF00";
+    this.deadColor = "#303030";
+    this.timeout = 400;
+    this.aliveChance = 0.95
   }
 
-  create(canvasId, boardSideSize) {
+  create(canvasId, cellsQuantity) {
     this.canvas = document.getElementById(canvasId);
     this.context = this.canvas.getContext("2d");
-    this.canvas.width = 800;
-    this.canvas.height = 800;
-    this.boardSideSize = boardSideSize;
-    this.cellSize = this.canvas.width / this.boardSideSize;
+    this.canvas.width = this.canvasSize;
+    this.canvas.height = this.canvasSize;
+    this.cellsQuantity = cellsQuantity;
+    this.cellSize = this.canvas.width / this.cellsQuantity;
 
     this.setListeners();
   }
 
-  applySettings(boardSideSize) {
-    this.setSettings(boardSideSize);
+  applySettings(cellsQuantity) {
+    this.setSettings(cellsQuantity);
   }
 
   start() {
@@ -32,28 +39,28 @@ class GameWorld {
     this.isPlaying = true;
 
     if (!this.gameObjects.size) this.createFirstGeneration();
-    this.applySettings(this.boardSideSize);
+    this.applySettings(this.cellsQuantity);
     this.gameLoop();
 
   }
 
   resetSettings() {
-    clearTimeout(this.timeout);
+    clearTimeout(this.timeoutId);
     this.prevGenerationTime = NaN;
     this.gameObjects = new Map();
     this.nextGenerationAlive = new Map();
   }
 
-  setSettings(boardSideSize) {
-    this.boardSideSize = boardSideSize;
-    this.shouldTimeout = boardSideSize < 800;
-    this.cellSize = this.canvas.width / this.boardSideSize;
+  setSettings(cellsQuantity) {
+    this.cellsQuantity = cellsQuantity;
+    this.shouldTimeout = cellsQuantity < this.maxSideSizeWithTimeout;
+    this.cellSize = this.canvas.width / this.cellsQuantity;
   }
 
   createFirstGeneration() {
-    for (let y = 0; y < this.boardSideSize; y++) {
-      for (let x = 0; x < this.boardSideSize; x++) {
-        const isAlive = Math.random() > 0.95;
+    for (let y = 0; y < this.cellsQuantity; y++) {
+      for (let x = 0; x < this.cellsQuantity; x++) {
+        const isAlive = Math.random() > this.aliveChance;
         if (isAlive) this.setGameObjectByXY(x, y);
         this.draw(x, y);
       }
@@ -74,7 +81,7 @@ class GameWorld {
 
   draw(x, y) {
     const isAlive = !!this.gameObjects.get(this.getObjectKey(x, y));
-    this.context.fillStyle = isAlive ? "#ff8080" : "#303030";
+    this.context.fillStyle = isAlive ? this.aliveColor : this.deadColor;
     this.context.fillRect(
       x * this.cellSize,
       y * this.cellSize,
@@ -85,8 +92,8 @@ class GameWorld {
 
   createNextGeneration() {
     this.nextGenerationAlive.clear();
-    for (let x = 0; x < this.boardSideSize; x++) {
-      for (let y = 0; y < this.boardSideSize; y++) {
+    for (let x = 0; x < this.cellsQuantity; x++) {
+      for (let y = 0; y < this.cellsQuantity; y++) {
         let numAlive =
           this.isAlive(x - 1, y - 1) +
           this.isAlive(x, y - 1) +
@@ -118,9 +125,9 @@ class GameWorld {
     });
 
     if (this.shouldTimeout) {
-      this.timeout = setTimeout(
+      this.timeoutId = setTimeout(
         () => window.requestAnimationFrame(() => this.gameLoop()),
-        400
+        this.timeout
       );
     } else {
       window.requestAnimationFrame(() => this.gameLoop());

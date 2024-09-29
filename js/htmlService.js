@@ -35,7 +35,7 @@ class HtmlService {
 </div>
 <div class="liveGame__interface-form-bottom">
                        <div class="liveGame__interface-form-bottom">
-              Если количество клеток меньше 800, рендерится с таймаутом 400мс
+              Если количество клеток меньше 700, рендерится с таймаутом 400мс для наглядности
            </div> 
               </div> 
         </div>
