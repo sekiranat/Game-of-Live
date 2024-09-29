@@ -1,7 +1,7 @@
 class HtmlService {
   constructor() {
     this.widthCell = 10 + 2; // размер cell + border width в css
-    this.userInterface = `
+    this.gameInterface = `
     <div class="liveGame__interface">
         <h1 class="liveGame__interface-title">
             Игра жизнь
@@ -11,9 +11,10 @@ class HtmlService {
                 <div class="liveGame__interface-text">
                     Количество клеток
                 </div>
-                <input data-type="field-size" class="liveGame__interface-input" name="field-size" type="text">
+                <input data-type="board-size" class="liveGame__interface-input" name="field-size" type="text">
             </label>
-            <button data-action="start" class="liveGame__interface-button">Применить</button>
+            <button data-action="apply" class="liveGame__interface-button">Применить</button>
+            <button data-action="start" class="liveGame__interface-button">Запустить</button>
         </div>
     </div>
     `;
