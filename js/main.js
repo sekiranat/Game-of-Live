@@ -35,9 +35,9 @@ class GameLive {
 
   buildInterface() {
     const interfaceHtml = this.htmlService.getGameInterface(this.defaultCellsQuantity);
-    const renderTimeHtml = this.htmlService.getHtmlByKeyName("renderTime");
+    const renderAdditionalInfoHtml = this.htmlService.getHtmlByKeyName("renderAdditionalInfo");
     this.insertChild(this.gameRoot, interfaceHtml);
-    this.insertChild(this.gameRoot, renderTimeHtml);
+    this.insertChild(this.gameRoot, renderAdditionalInfoHtml);
 
     this.interfaceElements = {
       startButton: document.querySelector('[data-action="start"]'),

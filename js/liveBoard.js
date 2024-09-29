@@ -1,4 +1,4 @@
-class LiveBoard{
+class LiveBoard {
   constructor() {
     this.canvas;
     this.prevGenerationTime;
@@ -11,12 +11,18 @@ class LiveBoard{
     this.timeout;
     this.isPlaying = false;
 
+    // constants
     this.canvasSize = 600;
     this.maxSideSizeWithTimeout = 700;
     this.aliveColor = "#00FF00";
     this.deadColor = "#303030";
     this.timeout = 400;
-    this.aliveChance = 0.95
+    this.aliveChance = 0.95;
+
+    this.boardInterfaceElements = {
+      time: null,
+      quantity: null,
+    };
   }
 
   create(canvasId, cellsQuantity) {
@@ -26,6 +32,10 @@ class LiveBoard{
     this.canvas.height = this.canvasSize;
     this.cellsQuantity = cellsQuantity;
     this.cellSize = this.canvas.width / this.cellsQuantity;
+    this.boardInterfaceElements = {
+      time: document.getElementById("render-time"),
+      quantity: document.getElementById("render-quantity"),
+    };
 
     this.setListeners();
   }
@@ -39,17 +49,17 @@ class LiveBoard{
     this.gameLoop();
   }
 
+  setSettings(cellsQuantity) {
+    this.cellsQuantity = cellsQuantity;
+    this.shouldTimeout = cellsQuantity < this.maxSideSizeWithTimeout;
+    this.cellSize = this.canvas.width / this.cellsQuantity;
+  }
+
   resetSettings() {
     clearTimeout(this.timeoutId);
     this.prevGenerationTime = NaN;
     this.gameObjects = new Map();
     this.nextGenerationAlive = new Map();
-  }
-
-  setSettings(cellsQuantity) {
-    this.cellsQuantity = cellsQuantity;
-    this.shouldTimeout = cellsQuantity < this.maxSideSizeWithTimeout;
-    this.cellSize = this.canvas.width / this.cellsQuantity;
   }
 
   createFirstGeneration() {
@@ -63,33 +73,18 @@ class LiveBoard{
   }
 
   setGameObjectByXY(x, y) {
-    this.gameObjects.set(this.getObjectKey(x, y), [x, y]);
+    this.gameObjects.set(this.getGameObjectKey(x, y), [x, y]);
   }
 
-  getObjectKey(x, y) {
+  getGameObjectKey(x, y) {
     return x + "_" + y;
-  }
-
-  isAlive(x, y) {
-    return !!this.gameObjects.get(this.getObjectKey(x, y));
-  }
-
-  draw(x, y) {
-    const isAlive = !!this.gameObjects.get(this.getObjectKey(x, y));
-    this.context.fillStyle = isAlive ? this.aliveColor : this.deadColor;
-    this.context.fillRect(
-      x * this.cellSize,
-      y * this.cellSize,
-      this.cellSize,
-      this.cellSize
-    );
   }
 
   createNextGeneration() {
     this.nextGenerationAlive.clear();
     for (let x = 0; x < this.cellsQuantity; x++) {
       for (let y = 0; y < this.cellsQuantity; y++) {
-        let numAlive =
+        const numAliveNeighbors =
           this.isAlive(x - 1, y - 1) +
           this.isAlive(x, y - 1) +
           this.isAlive(x + 1, y - 1) +
@@ -99,12 +94,27 @@ class LiveBoard{
           this.isAlive(x, y + 1) +
           this.isAlive(x + 1, y + 1);
 
-        if (numAlive === 2 || numAlive === 3)
-          this.nextGenerationAlive.set(this.getObjectKey(x, y), [x, y]);
+        if (numAliveNeighbors === 2 || numAliveNeighbors === 3)
+          this.nextGenerationAlive.set(this.getGameObjectKey(x, y), [x, y]);
       }
     }
 
     this.gameObjects = new Map(this.nextGenerationAlive);
+  }
+
+  isAlive(x, y) {
+    return !!this.gameObjects.get(this.getGameObjectKey(x, y));
+  }
+
+  draw(x, y) {
+    const isAlive = !!this.gameObjects.get(this.getGameObjectKey(x, y));
+    this.context.fillStyle = isAlive ? this.aliveColor : this.deadColor;
+    this.context.fillRect(
+      x * this.cellSize,
+      y * this.cellSize,
+      this.cellSize,
+      this.cellSize
+    );
   }
 
   gameLoop() {
@@ -136,8 +146,8 @@ class LiveBoard{
       const [xClick, yClick] = this.getCursorPosition(this.canvas, e);
       const x = Math.floor(xClick / this.cellSize);
       const y = Math.floor(yClick / this.cellSize);
-      if (this.gameObjects.has(this.getObjectKey(x, y)))
-        this.gameObjects.delete(this.getObjectKey(x, y));
+      if (this.gameObjects.has(this.getGameObjectKey(x, y)))
+        this.gameObjects.delete(this.getGameObjectKey(x, y));
       else this.setGameObjectByXY(x, y);
 
       this.draw(x, y);
@@ -159,9 +169,8 @@ class LiveBoard{
     const quantityAliveElements =
       "Количество живых клеток: " + this.gameObjects.size;
 
-    document.getElementById("render-time").innerHTML = timeGenerationString;
-    document.getElementById("render-quantity").innerHTML =
-      quantityAliveElements;
+    this.boardInterfaceElements.time.innerHTML = timeGenerationString;
+    this.boardInterfaceElements.quantity.innerHTML = quantityAliveElements;
   }
 }
 
