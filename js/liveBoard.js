@@ -84,15 +84,30 @@ class LiveBoard {
     this.nextGenerationAlive.clear();
     for (let x = 0; x < this.cellsQuantity; x++) {
       for (let y = 0; y < this.cellsQuantity; y++) {
-        const numAliveNeighbors =
-          this.isAlive(x - 1, y - 1) +
-          this.isAlive(x, y - 1) +
-          this.isAlive(x + 1, y - 1) +
-          this.isAlive(x - 1, y) +
-          this.isAlive(x + 1, y) +
-          this.isAlive(x - 1, y + 1) +
-          this.isAlive(x, y + 1) +
-          this.isAlive(x + 1, y + 1);
+        // проверки соседей с учетом того что поле является поверхностью тора
+        let north = y - 1;
+        let south = y + 1;
+        let west = x - 1;
+        let east = x + 1;
+
+        const yOtherSide = this.cellsQuantity - 1;
+        const xOtherSide = this.cellsQuantity - 1;
+
+        // координаты соседей при выходе за поле
+        if (north < 0) north = yOtherSide;
+        if (south > yOtherSide) south = 0;
+        if (west < 0) west = xOtherSide;
+        if (east > xOtherSide) east = 0;
+
+        let numAliveNeighbors =
+          this.isAlive(west, north) +
+          this.isAlive(x, north) +
+          this.isAlive(east, north) +
+          this.isAlive(west, y) +
+          this.isAlive(east, y) +
+          this.isAlive(west, south) +
+          this.isAlive(x, south) +
+          this.isAlive(east, south);
 
         if (numAliveNeighbors === 2 || numAliveNeighbors === 3)
           this.nextGenerationAlive.set(this.getGameObjectKey(x, y), [x, y]);
