@@ -5,6 +5,8 @@ class GameWorld {
     this.fieldSideSize = 100;
     this.cellSize = 2;
     this.shouldTimeout = 400;
+    this.gameObjects = new Map();
+    this.nextGenerationAlive = new Map();
   }
 
   init(canvasId, fieldSize) {
@@ -22,8 +24,6 @@ class GameWorld {
     this.canvas.width = 600;
     this.canvas.height = 600;
     this.timeGeneration = null;
-    this.gameObjects = [];
-    this.nextGenerationAlive = [];
     this.shouldTimeout = this.fieldSideSize < 300;
   }
 
@@ -32,7 +32,8 @@ class GameWorld {
     for (let y = 0; y < this.fieldSideSize; y++) {
       for (let x = 0; x < this.fieldSideSize; x++) {
         const isAlive = Math.random() > 0.7;
-        if (isAlive) this.gameObjects[`${x}_${y}`] = [x, y];
+        const gameObjectKey = `${x}_${y}`;
+        if (isAlive) this.gameObjects.set(gameObjectKey, [x, y]);
         this.draw(x, y);
       }
     }
@@ -43,11 +44,13 @@ class GameWorld {
       return false;
     }
 
-    return !!this.gameObjects[`${x}_${y}`];
+    const gameObjectKey = `${x}_${y}`;
+    return !!this.gameObjects.get(gameObjectKey);
   }
 
   draw(x, y) {
-    const isAlive = !!this.gameObjects[`${x}_${y}`];
+    const gameObjectKey = `${x}_${y}`;
+    const isAlive = !!this.gameObjects.get(gameObjectKey);
     this.context.fillStyle = isAlive ? "#ff8080" : "#303030";
     this.context.fillRect(
       x * this.cellSize,
@@ -58,7 +61,7 @@ class GameWorld {
   }
 
   createNextGeneration() {
-    this.nextGenerationAlive = {};
+    this.nextGenerationAlive = new Map();
     for (let x = 0; x < this.fieldSideSize; x++) {
       for (let y = 0; y < this.fieldSideSize; y++) {
         let numAlive =
@@ -72,11 +75,11 @@ class GameWorld {
           this.isAlive(x + 1, y + 1);
 
         if (numAlive === 2 || numAlive === 3)
-          this.nextGenerationAlive[`${x}_${y}`] = [x, y];
+          this.nextGenerationAlive.set(`${x}_${y}`, [x, y]);
       }
     }
 
-    this.gameObjects = Object.assign({}, this.nextGenerationAlive);
+    this.gameObjects = new Map(this.nextGenerationAlive)
   }
 
   gameLoop() {
@@ -85,23 +88,22 @@ class GameWorld {
     this.createNextGeneration();
     this.clearBoard();
 
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-    for (const key in this.gameObjects) {
-      const [x, y] = this.gameObjects[key];
+    this.gameObjects.forEach((value) => {
+      const [x, y] = value;
       this.draw(x, y);
-    }
-    console.log(this.shouldTimeout)
+    })
+
     if (this.shouldTimeout) {
       setTimeout(() => {
         window.requestAnimationFrame(() => this.gameLoop());
         this.renderTimeGeneration();
-      }, 400);
+      }, 200);
     } else {
       window.requestAnimationFrame(() => this.gameLoop());
       this.renderTimeGeneration();
     }
   }
+
 
   clearBoard() {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
