@@ -61,7 +61,7 @@ class GameWorld {
   }
 
   createNextGeneration() {
-    this.nextGenerationAlive = new Map();
+    this.nextGenerationAlive.clear();
     for (let x = 0; x < this.fieldSideSize; x++) {
       for (let y = 0; y < this.fieldSideSize; y++) {
         let numAlive =
