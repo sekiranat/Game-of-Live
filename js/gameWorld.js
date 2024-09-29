@@ -1,51 +1,39 @@
-import Cell from "./cell.js";
-
 class GameWorld {
   constructor() {
     this.canvas = null;
     this.prevGenerationTime = null;
-    this.cellWidth = 2;
     this.fieldSideSize = 100;
+    this.cellSize = 2;
+    this.shouldTimeout = 400;
   }
 
   init(canvasId, fieldSize) {
     this.setSettings(canvasId, fieldSize);
     this.createGrid();
 
-    // Request an animation frame for the first time
-    // The gameLoop() function will be called as a callback of this request
-    window.requestAnimationFrame(() => this.gameLoop());
+    this.gameLoop();
   }
 
   setSettings(canvasId, fieldSize = 100) {
     this.canvas = document.getElementById(canvasId);
     this.context = this.canvas.getContext("2d");
 
-    //const fieldSideSize  = this.calculateFieldSize(fieldSize)
     this.fieldSideSize = fieldSize;
     this.canvas.width = 600;
     this.canvas.height = 600;
     this.timeGeneration = null;
     this.gameObjects = [];
-  }
-
-  calculateFieldSize(fieldSize) {
-    return this.cellWidth * fieldSize;
+    this.nextGenerationAlive = [];
+    this.shouldTimeout = this.fieldSideSize < 300;
   }
 
   createGrid() {
-    const cellSize = this.canvas.width / this.fieldSideSize
+    this.cellSize = this.canvas.width / this.fieldSideSize;
     for (let y = 0; y < this.fieldSideSize; y++) {
       for (let x = 0; x < this.fieldSideSize; x++) {
-        const isAlive = Math.random() > 0.9;
-        this.context.fillStyle = isAlive ? "#ff8080" : "#303030";
-        this.context.fillRect(
-            x * cellSize,
-            y * cellSize,
-            cellSize,
-            cellSize
-        );
-        this.gameObjects.push(new Cell(this.context, cellSize, x, y,));
+        const isAlive = Math.random() > 0.7;
+        if (isAlive) this.gameObjects[`${x}_${y}`] = [x, y];
+        this.draw(x, y);
       }
     }
   }
@@ -55,18 +43,24 @@ class GameWorld {
       return false;
     }
 
-    return this.gameObjects[this.gridToIndex(x, y)].alive ? 1 : 0;
+    return !!this.gameObjects[`${x}_${y}`];
   }
 
-  gridToIndex(x, y) {
-    return x + y * this.fieldSideSize;
+  draw(x, y) {
+    const isAlive = !!this.gameObjects[`${x}_${y}`];
+    this.context.fillStyle = isAlive ? "#ff8080" : "#303030";
+    this.context.fillRect(
+      x * this.cellSize,
+      y * this.cellSize,
+      this.cellSize,
+      this.cellSize
+    );
   }
 
-  checkSurrounding() {
-    // Loop over all cells
+  createNextGeneration() {
+    this.nextGenerationAlive = {};
     for (let x = 0; x < this.fieldSideSize; x++) {
       for (let y = 0; y < this.fieldSideSize; y++) {
-        // Count the nearby population
         let numAlive =
           this.isAlive(x - 1, y - 1) +
           this.isAlive(x, y - 1) +
@@ -76,45 +70,41 @@ class GameWorld {
           this.isAlive(x - 1, y + 1) +
           this.isAlive(x, y + 1) +
           this.isAlive(x + 1, y + 1);
-        let centerIndex = this.gridToIndex(x, y);
 
-        if (numAlive == 2) {
-          // Do nothing
-          this.gameObjects[centerIndex].nextAlive = true;
-        } else if (numAlive == 3) {
-          // Make alive
-          this.gameObjects[centerIndex].nextAlive = true;
-        } else {
-          // Make dead
-          this.gameObjects[centerIndex].nextAlive = false;
-        }
+        if (numAlive === 2 || numAlive === 3)
+          this.nextGenerationAlive[`${x}_${y}`] = [x, y];
       }
     }
 
-    // Apply the new state to the cells
-    for (let i = 0; i < this.gameObjects.length; i++) {
-      this.gameObjects[i].alive = this.gameObjects[i].nextAlive;
-    }
+    this.gameObjects = Object.assign({}, this.nextGenerationAlive);
   }
 
   gameLoop() {
     this.prevGenerationTime = new Date().getTime();
 
-    // Check the surrounding of each cell
-    this.checkSurrounding();
+    this.createNextGeneration();
+    this.clearBoard();
 
-    // Clear the screen
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    //this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Draw all the gameObjects
-    for (let i = 0; i < this.gameObjects.length; i++) {
-      this.gameObjects[i].draw();
+    for (const key in this.gameObjects) {
+      const [x, y] = this.gameObjects[key];
+      this.draw(x, y);
     }
+    console.log(this.shouldTimeout)
+    if (this.shouldTimeout) {
+      setTimeout(() => {
+        window.requestAnimationFrame(() => this.gameLoop());
+        this.renderTimeGeneration();
+      }, 400);
+    } else {
+      window.requestAnimationFrame(() => this.gameLoop());
+      this.renderTimeGeneration();
+    }
+  }
 
-    // The loop function has reached it's end, keep requesting new frames
-    //window.requestAnimationFrame(() => this.gameLoop());
-    this.renderTimeGeneration();
+  clearBoard() {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   renderTimeGeneration() {
