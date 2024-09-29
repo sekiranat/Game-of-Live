@@ -30,18 +30,13 @@ class LiveBoard{
     this.setListeners();
   }
 
-  applySettings(cellsQuantity) {
-    this.setSettings(cellsQuantity);
-  }
-
-  start() {
+  start(cellsQuantity) {
     if (this.isPlaying) this.resetSettings();
     this.isPlaying = true;
+    this.setSettings(cellsQuantity);
 
     if (!this.gameObjects.size) this.createFirstGeneration();
-    this.applySettings(this.cellsQuantity);
     this.gameLoop();
-
   }
 
   resetSettings() {
@@ -129,9 +124,7 @@ class LiveBoard{
         () => window.requestAnimationFrame(() => this.gameLoop()),
         this.timeout
       );
-    } else {
-      window.requestAnimationFrame(() => this.gameLoop());
-    }
+    } else window.requestAnimationFrame(() => this.gameLoop());
   }
 
   clearBoard() {

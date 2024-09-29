@@ -29,7 +29,6 @@ class HtmlService {
                 <input data-type="board-size" class="liveGame__interface-input" value=${defaultBoardSize} name="field-size" type="text">
             </label>
             <div class="liveGame__interface-form-buttons">
-            <button data-action="apply" class="liveGame__interface-button">Применить</button>
             <button data-action="start" class="liveGame__interface-button">Запустить</button>
             </div>
 </div>

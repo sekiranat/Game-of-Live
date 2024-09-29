@@ -10,7 +10,6 @@ class GameLive {
     this.gameBoardId = 'game-board'
 
     this.interfaceElements = {
-      applyButton: null,
       startButton: null,
       boardSizeInput: null
     }
@@ -26,13 +25,12 @@ class GameLive {
   }
 
   setListeners() {
-    this.interfaceElements.startButton.addEventListener("click", () => this.liveBoard.start());
-    this.interfaceElements.applyButton.addEventListener("click", () => this.applySettings());
+    this.interfaceElements.startButton.addEventListener("click", () => this.startGame());
   }
 
-  applySettings() {
+  startGame() {
     const boardSideSize = this.interfaceElements.boardSizeInput.value
-    this.liveBoard.applySettings(boardSideSize);
+    this.liveBoard.start(boardSideSize);
   }
 
   buildInterface() {
@@ -42,7 +40,6 @@ class GameLive {
     this.insertChild(this.gameRoot, renderTimeHtml);
 
     this.interfaceElements = {
-      applyButton: document.querySelector('[data-action="apply"]'),
       startButton: document.querySelector('[data-action="start"]'),
       boardSizeInput: document.querySelector('[data-type="board-size"]')
     }
