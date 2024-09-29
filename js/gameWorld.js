@@ -34,7 +34,6 @@ class GameWorld {
   setSettings(boardSideSize) {
     this.boardSideSize = boardSideSize;
     this.shouldTimeout = boardSideSize < 800;
-    console.log(this.shouldTimeout)
     this.cellSize = this.canvas.width / this.boardSideSize;
   }
 
@@ -94,6 +93,7 @@ class GameWorld {
   }
 
   gameLoop() {
+    this.renderAdditionalInfo();
     this.prevGenerationTime = new Date().getTime();
 
     this.createNextGeneration();
@@ -105,13 +105,9 @@ class GameWorld {
     });
 
     if (this.shouldTimeout) {
-      setTimeout(() => {
-        window.requestAnimationFrame(() => this.gameLoop());
-        this.renderAdditionalInfo();
-      }, 400);
+      setTimeout(() => window.requestAnimationFrame(() => this.gameLoop()), 400);
     } else {
       window.requestAnimationFrame(() => this.gameLoop());
-      this.renderAdditionalInfo();
     }
   }
 
@@ -138,8 +134,11 @@ class GameWorld {
 
   renderAdditionalInfo() {
     const deltaMs = new Date().getTime() - this.prevGenerationTime;
-    const timeGenerationString = "Рендер: " + deltaMs + "ms";
+    const isFirstGeneration =  isNaN(deltaMs);
+    const deltaString = !isFirstGeneration ? deltaMs : '-'
+    const timeGenerationString = "Рендер: " + deltaString + " ms";
     const quantityAliveElements = "Количество живых клеток: " + this.gameObjects.size;
+
     document.getElementById("render-time").innerHTML = timeGenerationString;
     document.getElementById("render-quantity").innerHTML = quantityAliveElements;
   }
