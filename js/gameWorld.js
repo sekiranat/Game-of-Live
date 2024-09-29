@@ -32,11 +32,14 @@ class GameWorld {
     for (let y = 0; y < this.fieldSideSize; y++) {
       for (let x = 0; x < this.fieldSideSize; x++) {
         const isAlive = Math.random() > 0.7;
-        const gameObjectKey = `${x}_${y}`;
-        if (isAlive) this.gameObjects.set(gameObjectKey, [x, y]);
+        if (isAlive) this.gameObjects.set(this.getObjectKey(x, y), [x, y]);
         this.draw(x, y);
       }
     }
+  }
+
+  getObjectKey(x, y) {
+    return x + '_' + y;
   }
 
   isAlive(x, y) {
@@ -44,13 +47,11 @@ class GameWorld {
       return false;
     }
 
-    const gameObjectKey = `${x}_${y}`;
-    return !!this.gameObjects.get(gameObjectKey);
+    return !!this.gameObjects.get(this.getObjectKey(x, y));
   }
 
   draw(x, y) {
-    const gameObjectKey = `${x}_${y}`;
-    const isAlive = !!this.gameObjects.get(gameObjectKey);
+    const isAlive = !!this.gameObjects.get(this.getObjectKey(x, y));
     this.context.fillStyle = isAlive ? "#ff8080" : "#303030";
     this.context.fillRect(
       x * this.cellSize,
@@ -75,14 +76,16 @@ class GameWorld {
           this.isAlive(x + 1, y + 1);
 
         if (numAlive === 2 || numAlive === 3)
-          this.nextGenerationAlive.set(`${x}_${y}`, [x, y]);
+          this.nextGenerationAlive.set(this.getObjectKey(x, y), [x, y]);
       }
     }
 
     this.gameObjects = new Map(this.nextGenerationAlive)
+    console.log(this.nextGenerationAlive)
   }
 
   gameLoop() {
+    console.log(this.nextGenerationAlive)
     this.prevGenerationTime = new Date().getTime();
 
     this.createNextGeneration();
@@ -111,8 +114,9 @@ class GameWorld {
 
   renderTimeGeneration() {
     const deltaMs = new Date().getTime() - this.prevGenerationTime;
-    document.getElementById("render-time").innerHTML = `Рендер: ${deltaMs} ms`;
-    console.log(`Generation: ${deltaMs} ms`);
+    const timeGenerationString = 'Рендер:' + deltaMs + 'ms'
+    document.getElementById("render-time").innerHTML = timeGenerationString;
+    console.log(timeGenerationString);
   }
 }
 
