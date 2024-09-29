@@ -6,7 +6,7 @@ class GameLive {
     this.gameRoot = document.getElementById("game-root");
     this.htmlService = new HtmlService();
     this.liveBoard = new GameWorld();
-    this.boardSideSize = 20
+    this.defaultBoardSize = 20
     this.gameBoardId = 'game-board'
 
     this.interfaceElements = {
@@ -22,7 +22,7 @@ class GameLive {
     this.buildInterface();
     this.buildBoard();
     this.setListeners();
-    this.liveBoard.create(this.gameBoardId, this.boardSideSize);
+    this.liveBoard.create(this.gameBoardId, this.defaultBoardSize);
   }
 
   setListeners() {
@@ -36,7 +36,7 @@ class GameLive {
   }
 
   buildInterface() {
-    const interfaceHtml = this.htmlService.getHtmlByKeyName("gameInterface", this.boardSideSize);
+    const interfaceHtml = this.htmlService.getGameInterface(this.defaultBoardSize);
     const renderTimeHtml = this.htmlService.getHtmlByKeyName("renderTime");
     this.insertChild(this.gameRoot, interfaceHtml);
     this.insertChild(this.gameRoot, renderTimeHtml);

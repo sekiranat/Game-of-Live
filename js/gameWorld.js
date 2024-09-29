@@ -1,13 +1,13 @@
 class GameWorld {
   constructor() {
-    this.canvas = null;
-    this.prevGenerationTime = null;
-    this.boardSideSize = 20;
-    this.cellSize = 2;
-    this.shouldTimeout = 400;
+    this.canvas;
+    this.prevGenerationTime;
+    this.boardSideSize;
+    this.timeGeneration;
+    this.shouldTimeout;
+    this.cellSize;
     this.gameObjects = new Map();
     this.nextGenerationAlive = new Map();
-    this.timeGeneration = null;
   }
 
   create(canvasId, boardSideSize) {
@@ -27,12 +27,14 @@ class GameWorld {
 
   start() {
     if(!this.gameObjects.size) this.createFirstGeneration();
+    this.applySettings(this.boardSideSize)
     this.gameLoop();
   }
 
-  setSettings(boardSideSize = 100) {
+  setSettings(boardSideSize) {
     this.boardSideSize = boardSideSize;
-    this.shouldTimeout = boardSideSize < 300;
+    this.shouldTimeout = boardSideSize < 800;
+    console.log(this.shouldTimeout)
     this.cellSize = this.canvas.width / this.boardSideSize;
   }
 
@@ -83,8 +85,6 @@ class GameWorld {
           this.isAlive(x, y + 1) +
           this.isAlive(x + 1, y + 1);
 
-          console.log(x, y)
-
         if (numAlive === 2 || numAlive === 3)
           this.nextGenerationAlive.set(this.getObjectKey(x, y), [x, y]);
       }
@@ -107,11 +107,11 @@ class GameWorld {
     if (this.shouldTimeout) {
       setTimeout(() => {
         window.requestAnimationFrame(() => this.gameLoop());
-        this.renderTimeGeneration();
+        this.renderAdditionalInfo();
       }, 400);
     } else {
       window.requestAnimationFrame(() => this.gameLoop());
-      this.renderTimeGeneration();
+      this.renderAdditionalInfo();
     }
   }
 
@@ -136,11 +136,12 @@ class GameWorld {
     return [ x, y ];
   }
 
-  renderTimeGeneration() {
+  renderAdditionalInfo() {
     const deltaMs = new Date().getTime() - this.prevGenerationTime;
     const timeGenerationString = "Рендер: " + deltaMs + "ms";
+    const quantityAliveElements = "Количество живых клеток: " + this.gameObjects.size;
     document.getElementById("render-time").innerHTML = timeGenerationString;
-    console.log(timeGenerationString);
+    document.getElementById("render-quantity").innerHTML = quantityAliveElements;
   }
 }
 
