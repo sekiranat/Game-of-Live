@@ -8,6 +8,8 @@ class GameWorld {
     this.cellSize;
     this.gameObjects = new Map();
     this.nextGenerationAlive = new Map();
+    this.timeout;
+    this.isPlaying = false;
   }
 
   create(canvasId, boardSideSize) {
@@ -26,9 +28,20 @@ class GameWorld {
   }
 
   start() {
-    if(!this.gameObjects.size) this.createFirstGeneration();
-    this.applySettings(this.boardSideSize)
+    if (this.isPlaying) this.resetSettings();
+    this.isPlaying = true;
+
+    if (!this.gameObjects.size) this.createFirstGeneration();
+    this.applySettings(this.boardSideSize);
     this.gameLoop();
+
+  }
+
+  resetSettings() {
+    clearTimeout(this.timeout);
+    this.prevGenerationTime = NaN;
+    this.gameObjects = new Map();
+    this.nextGenerationAlive = new Map();
   }
 
   setSettings(boardSideSize) {
@@ -46,9 +59,9 @@ class GameWorld {
       }
     }
   }
-  
+
   setGameObjectByXY(x, y) {
-    this.gameObjects.set(this.getObjectKey(x, y), [x, y])
+    this.gameObjects.set(this.getObjectKey(x, y), [x, y]);
   }
 
   getObjectKey(x, y) {
@@ -105,7 +118,10 @@ class GameWorld {
     });
 
     if (this.shouldTimeout) {
-      setTimeout(() => window.requestAnimationFrame(() => this.gameLoop()), 400);
+      this.timeout = setTimeout(
+        () => window.requestAnimationFrame(() => this.gameLoop()),
+        400
+      );
     } else {
       window.requestAnimationFrame(() => this.gameLoop());
     }
@@ -117,11 +133,14 @@ class GameWorld {
 
   setListeners() {
     this.canvas.addEventListener("mousedown", (e) => {
-      const [xClick, yClick ] = this.getCursorPosition(this.canvas, e);
-      const x = Math.floor(xClick / this.cellSize)
-      const y = Math.floor(yClick / this.cellSize)
-      this.setGameObjectByXY(x, y)
-      this.draw(x, y)
+      const [xClick, yClick] = this.getCursorPosition(this.canvas, e);
+      const x = Math.floor(xClick / this.cellSize);
+      const y = Math.floor(yClick / this.cellSize);
+      if (this.gameObjects.has(this.getObjectKey(x, y)))
+        this.gameObjects.delete(this.getObjectKey(x, y));
+      else this.setGameObjectByXY(x, y);
+
+      this.draw(x, y);
     });
   }
 
@@ -129,18 +148,20 @@ class GameWorld {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    return [ x, y ];
+    return [x, y];
   }
 
   renderAdditionalInfo() {
     const deltaMs = new Date().getTime() - this.prevGenerationTime;
-    const isFirstGeneration =  isNaN(deltaMs);
-    const deltaString = !isFirstGeneration ? deltaMs : '-'
+    const isFirstGeneration = isNaN(deltaMs);
+    const deltaString = !isFirstGeneration ? deltaMs : "-";
     const timeGenerationString = "Рендер: " + deltaString + " ms";
-    const quantityAliveElements = "Количество живых клеток: " + this.gameObjects.size;
+    const quantityAliveElements =
+      "Количество живых клеток: " + this.gameObjects.size;
 
     document.getElementById("render-time").innerHTML = timeGenerationString;
-    document.getElementById("render-quantity").innerHTML = quantityAliveElements;
+    document.getElementById("render-quantity").innerHTML =
+      quantityAliveElements;
   }
 }
 
