@@ -3,13 +3,13 @@ class GameLive {
     this.gameRoot = document.getElementById("game-root");
     this.htmlService = new HtmlService();
     this.liveBoard = new LiveBoard();
-    this.defaultCellsQuantity = 20
-    this.gameBoardId = 'game-board'
+    this.defaultCellsQuantity = 20;
+    this.gameBoardId = "game-board";
 
     this.interfaceElements = {
       startButton: null,
-      boardSizeInput: null
-    }
+      boardSizeInput: null,
+    };
 
     this.init();
   }
@@ -22,24 +22,30 @@ class GameLive {
   }
 
   setListeners() {
-    this.interfaceElements.startButton.addEventListener("click", () => this.startGame());
+    this.interfaceElements.startButton.addEventListener("click", () =>
+      this.startGame()
+    );
   }
 
   startGame() {
-    const boardSideSize = this.interfaceElements.boardSizeInput.value
+    const boardSideSize = this.interfaceElements.boardSizeInput.value;
     this.liveBoard.start(boardSideSize);
   }
 
   buildInterface() {
-    const interfaceHtml = this.htmlService.getGameInterface(this.defaultCellsQuantity);
-    const renderAdditionalInfoHtml = this.htmlService.getHtmlByKeyName("renderAdditionalInfo");
+    const interfaceHtml = this.htmlService.getGameInterface(
+      this.defaultCellsQuantity
+    );
+    const renderAdditionalInfoHtml = this.htmlService.getHtmlByKeyName(
+      "renderAdditionalInfo"
+    );
     this.insertChild(this.gameRoot, interfaceHtml);
     this.insertChild(this.gameRoot, renderAdditionalInfoHtml);
 
     this.interfaceElements = {
       startButton: document.querySelector('[data-action="start"]'),
-      boardSizeInput: document.querySelector('[data-type="board-size"]')
-    }
+      boardSizeInput: document.querySelector('[data-type="board-size"]'),
+    };
   }
 
   buildBoard() {
